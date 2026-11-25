@@ -1,0 +1,1 @@
+[[4812,1,"Zgflj4g3","play{AllpassC.ar(SinOsc.ar(55).tanh,0.4,TExpRand.ar(2e-4, 0.4,Impulse.ar(8)).round([2e-3,4e-3]),2)};// #supercollider with bass please..."],[5054,34,"Ziif6hs8","2ELATES"]]

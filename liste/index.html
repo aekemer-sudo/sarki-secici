@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Şarkı Seçicim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf8f3; --yuzey:#ffffff; --yuzey2:#f3eee6; --metin:#1d1b18; --ikincil:#4a443c;
+  --kenar:#d6cec1; --girdi:#7a7266; --vurgu:#0d6b58; --vurgu-metin:#ffffff; --secili:#e2f2ec; --wa:#167a43;
+  --rozet:#a83a1a; --uyari:#fff3d6; --golge:0 1px 3px rgba(0,0,0,.12);
+  --yan:max(16px, env(safe-area-inset-left)); --yan-sag:max(16px, env(safe-area-inset-right));
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16140f; --yuzey:#221f19; --yuzey2:#2c2820; --metin:#f4efe6; --ikincil:#d3cabc;
+    --kenar:#4a4438; --girdi:#9a917f; --vurgu:#5fd0b2; --vurgu-metin:#0b1c17; --secili:#1d3a31; --wa:#3fc77a;
+    --rozet:#ff9b77; --uyari:#3a3016; --golge:none; color-scheme: dark;
+  }
+}
+[data-theme="dark"]{
+  --bg:#16140f; --yuzey:#221f19; --yuzey2:#2c2820; --metin:#f4efe6; --ikincil:#d3cabc;
+  --kenar:#4a4438; --girdi:#9a917f; --vurgu:#5fd0b2; --vurgu-metin:#0b1c17; --secili:#1d3a31; --wa:#3fc77a;
+  --rozet:#ff9b77; --uyari:#3a3016; --golge:none; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--metin);font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:20px;line-height:1.45;overflow-x:hidden}
+button,input,a{font:inherit;color:inherit}
+[hidden]{display:none !important}
+.ust{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px var(--yan-sag) 10px var(--yan);border-bottom:1px solid var(--kenar)}
+.ust-satir{display:flex;align-items:center;gap:10px}
+.geri{min-height:56px;min-width:56px;padding:0 16px;border-radius:14px;border:2px solid var(--vurgu);background:var(--yuzey);
+  color:var(--vurgu);font-weight:800;font-size:20px;cursor:pointer;flex-shrink:0}
+h1{font-size:24px;margin:0;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.ara{margin-top:10px;display:flex;gap:8px}
+.ara input{flex:1;min-width:0;min-height:56px;border-radius:14px;border:2px solid var(--girdi);background:var(--yuzey);padding:0 14px;font-size:20px}
+.ara input:focus{outline:3px solid var(--vurgu);outline-offset:1px;border-color:var(--vurgu)}
+main{padding:12px var(--yan-sag) 170px var(--yan);max-width:760px;margin:0 auto}
+.aciklama{color:var(--ikincil);margin:4px 0 14px;font-size:20px}
+.grup-baslik{font-size:21px;font-weight:800;margin:22px 0 10px;color:var(--ikincil)}
+.kart{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;min-height:68px;
+  padding:14px 16px;margin:0 0 10px;border-radius:16px;border:1px solid var(--kenar);background:var(--yuzey);box-shadow:var(--golge);cursor:pointer;text-decoration:none}
+.kart:active{background:var(--yuzey2)}
+.kart:focus-visible,.btn:focus-visible,.geri:focus-visible,.satir:focus-within{outline:3px solid var(--vurgu);outline-offset:2px}
+.kart b{display:block;font-size:22px;font-weight:800}
+.kart small{display:block;color:var(--ikincil);font-size:19px;margin-top:2px}
+.ok{font-size:28px;color:var(--vurgu);flex-shrink:0}
+.rozet{background:var(--rozet);color:#fff;border-radius:999px;padding:2px 12px;font-weight:800;font-size:20px;flex-shrink:0}
+[data-theme="dark"] .rozet{color:#1d0f08}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rozet{color:#1d0f08}}
+.btn{display:block;width:100%;min-height:60px;border-radius:14px;border:2px solid var(--vurgu);background:var(--yuzey);color:var(--vurgu);font-weight:800;font-size:20px;padding:8px 18px;cursor:pointer;margin:10px 0}
+.btn.dolu{background:var(--vurgu);color:var(--vurgu-metin)}
+.btn.uyari{border-color:var(--rozet);color:var(--rozet)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:12px 18px;min-height:76px;font-size:23px}
+.btn.kopya{min-height:76px;font-size:23px}
+button.btn.wa{width:100%}
+[data-theme="dark"] .btn.wa{color:#08200f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.wa{color:#08200f}}
+.satir{display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;margin:0 0 10px;border-radius:14px;border:1px solid var(--kenar);background:var(--yuzey);cursor:pointer}
+.satir.secili{background:var(--secili);border-color:var(--vurgu)}
+.satir input{position:absolute;opacity:0;width:1px;height:1px}
+.kutu{width:40px;height:40px;border-radius:10px;border:3px solid var(--ikincil);flex-shrink:0;display:grid;place-items:center;font-size:26px;font-weight:800;color:var(--vurgu-metin)}
+.satir.secili .kutu{background:var(--vurgu);border-color:var(--vurgu)}
+.satir .ad{font-weight:700;font-size:20px;overflow-wrap:anywhere}
+.satir .alt{display:block;color:var(--ikincil);font-size:19px;font-weight:500}
+.cikar{margin-left:auto;min-height:56px;min-width:56px;border-radius:12px;border:2px solid var(--rozet);background:var(--yuzey);color:var(--rozet);font-weight:800;font-size:20px;cursor:pointer;padding:0 14px;flex-shrink:0}
+.alt-cubuk{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--kenar);
+  padding:10px var(--yan-sag) max(10px, env(safe-area-inset-bottom)) var(--yan)}
+.alt-cubuk .btn{max-width:760px;margin:0 auto;min-height:64px;font-size:22px}
+.geri-al{position:fixed;left:0;right:0;bottom:calc(92px + env(safe-area-inset-bottom));z-index:7;padding:0 var(--yan-sag) 0 var(--yan)}
+.geri-al div{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 12px 10px 16px;border-radius:14px;
+  background:#2b2823;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.geri-al span{flex:1;font-size:20px;font-weight:700}
+.geri-al button{min-height:56px;min-width:96px;border-radius:12px;border:2px solid #fff;background:#fff;color:#1d1b18;font-weight:800;font-size:20px;cursor:pointer}
+.bilgi{padding:14px 16px;border-radius:14px;background:var(--yuzey2);margin:10px 0;font-size:20px}
+.bilgi.uyari{background:var(--uyari);border:2px solid var(--rozet)}
+.yukleniyor{padding:30px 0;text-align:center;font-weight:700;color:var(--ikincil)}
+textarea{width:100%;min-height:200px;font-size:20px;border-radius:12px;border:2px solid var(--girdi);background:var(--yuzey);color:var(--metin);padding:10px}
+.bos{color:var(--ikincil);padding:20px 0}
+.sayi{font-size:30px;font-weight:800;margin:6px 0 0;line-height:1.2}
+.onizleme{margin:10px 0;padding:12px 14px;border-radius:14px;background:var(--yuzey);border:1px solid var(--kenar)}
+.onizleme div{padding:4px 0;font-weight:700;overflow-wrap:anywhere}
+.adim{padding:14px 16px;border-radius:14px;border:2px solid var(--kenar);background:var(--yuzey);margin:12px 0}
+.adim.aktif{border-color:var(--wa)}
+.adim.bitti{background:var(--secili);border-color:var(--vurgu)}
+.adim h3{margin:0 0 6px;font-size:22px}
+.tarif{font-weight:700;margin:6px 0 4px}
+.durum{margin:10px 0;color:var(--ikincil)}
+</style>
+</head>
+<body>
+<header class="ust">
+  <div class="ust-satir">
+    <button class="geri" id="geri" type="button" hidden aria-label="Geri dön">‹ Geri</button>
+    <h1 id="baslik">Sevdiğiniz şarkıları seçin</h1>
+  </div>
+  <div class="ara" id="araKutu">
+    <input id="ara" type="search" inputmode="search" autocomplete="off" placeholder="Şarkı ya da sanatçı adı yazın" aria-label="Şarkı ya da sanatçı ara">
+  </div>
+</header>
+<main id="ekran" aria-live="polite"></main>
+<div class="geri-al" id="geriAlKutu" hidden><div role="status"><span id="geriAlMetin"></span><button type="button" id="geriAlBtn">Geri al</button></div></div>
+<div class="alt-cubuk" id="altCubuk" hidden><button class="btn dolu" id="secilenBtn" type="button">Listemi gör (0)</button></div>
+<script>
+(function(){
+"use strict";
+var ANAHTAR="sarkiSecimV4", GONDER="sarkiGonderV4";                                    /* aynı adresteki eski sayfanın anahtarlarına dokunulmaz */
+var KISAYOL=["d97013","d174210","d13758","d9289","d113766","d254617"];                       /* Zeki Müren, Müzeyyen Senar, Barış Manço, Sezen Aksu, Orhan Gencebay, İbrahim Tatlıses */
+var DIGER=["d16628","d103304","d343785","d99563","d97092","d111965","d6435","d328791","d101725","d3254","d459471","d98753",
+           "d4308","d328865","d91607","d16617","d325135","d343782","d101809","d343662","d97973","d96908","d9290","d98036"];
+var ILK=20, ARTIM=20, ONIZLEME=8;
+var D=null, dosyalar={}, yukleniyor={}, sec={}, aramaMetni="", yigin=0, kayitTamam=true;
+var gonderDurum={}, kon={}, aktifHash=null, gosterilen={}, digerAcik=false, aLim=12, sLim=20, araYukluyor=false;
+var geriCagri=[];
+var ekran=document.getElementById("ekran"), baslik=document.getElementById("baslik"),
+    geri=document.getElementById("geri"), ara=document.getElementById("ara"), secBtn=document.getElementById("secilenBtn"),
+    altCubuk=document.getElementById("altCubuk"), araKutu=document.getElementById("araKutu"), geriAlKutu=document.getElementById("geriAlKutu"),
+    geriAlMetin=document.getElementById("geriAlMetin"), geriAlBtn=document.getElementById("geriAlBtn");
+try{ history.scrollRestoration="manual"; }catch(e){}
+function kayitOku(k){ try{ var v=JSON.parse(localStorage.getItem(k)||"null"); return v && typeof v==="object" && !Array.isArray(v)? v : null; }catch(e){ return null; } }
+sec=kayitOku(ANAHTAR)||{};
+try{ gonderDurum=JSON.parse(localStorage.getItem(GONDER)||"{}")||{}; }catch(e){ gonderDurum={}; }
+function kaydet(){
+  try{ localStorage.setItem(ANAHTAR, JSON.stringify(sec)); kayitTamam=true; }catch(e){ kayitTamam=false; }
+  sayac();
+}
+function gonderKaydet(){ try{ localStorage.setItem(GONDER, JSON.stringify(gonderDurum)); }catch(e){} }
+function adet(){ return Object.keys(sec).length; }
+function mevcutHash(){ return (location.hash||"").slice(1); }
+function sayac(){
+  var n=adet(), hs=mevcutHash();
+  araKutu.hidden=(hs==="secilenler");
+  secBtn.classList.toggle("dolu", hs!=="secilenler");
+  if(hs==="secilenler"){ secBtn.textContent="‹ Seçmeye devam et"; altCubuk.hidden=false; }
+  else{ secBtn.textContent="Listemi gör ("+n+")"; altCubuk.hidden=!n; }
+}
+function h(tag, p, cocuk){
+  var e=document.createElement(tag);
+  if(p) for(var k in p){ if(k==="text") e.textContent=p[k]; else if(k==="on") for(var ev in p.on) e.addEventListener(ev,p.on[ev]); else e.setAttribute(k,p[k]); }
+  (cocuk||[]).forEach(function(c){ if(c!=null) e.appendChild(typeof c==="string"?document.createTextNode(c):c); });
+  return e;
+}
+function katla(s){
+  return (s||"").replace(/İ/g,"i").replace(/I/g,"ı").toLowerCase()
+    .replace(/ı/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g").replace(/ü/g,"u").replace(/ö/g,"o").replace(/ç/g,"c")
+    .replace(/[âà]/g,"a").replace(/[îí]/g,"i").replace(/û/g,"u").replace(/[êé]/g,"e")
+    .replace(/[^0-9a-z]+/g," ").trim();
+}
+function git(hash){ delete kon[hash]; if(location.hash!=="#"+hash){ yigin++; location.hash=hash; } else ciz(); }
+function b36(n){ return n.toString(36); }
+function pad2(s){ return s.length<2? "0"+s : s; }
+function fnv(metin){
+  var b=new TextEncoder().encode(metin), x=0x811c9dc5;
+  for(var i=0;i<b.length;i++){ x^=b[i]; x=Math.imul(x,0x01000193)>>>0; }
+  return x.toString(36);
+}
+
+function jsonAl(yol, depo, anahtar){
+  if(depo[anahtar]) return Promise.resolve(depo[anahtar]);
+  var y="y:"+yol; if(yukleniyor[y]) return yukleniyor[y];
+  yukleniyor[y]=fetch(yol).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(j){ depo[anahtar]=j; delete yukleniyor[y]; return j; })
+    .catch(function(e){ delete yukleniyor[y]; throw e; });
+  return yukleniyor[y];
+}
+function sanatciDosya(sid){ return jsonAl("veri/s/"+sid+".json", dosyalar, sid); }       /* sanatçı başına şarkı dosyası */
+var araParca={};
+function araDosya(on){                                                                       /* şarkı adı arama parçası; büyükse alt dosyalar (index.json ap) */
+  var k=D.ap&&D.ap[on]; if(!k) return jsonAl("veri/a/"+on+".json", araParca, on);
+  if(araParca[on]) return Promise.resolve(araParca[on]);
+  var tmp={}, l=[]; for(var i=0;i<k;i++) l.push(jsonAl("veri/a/"+on+"."+i+".json", tmp, i));
+  return Promise.all(l).then(function(p){ araParca[on]=[].concat.apply([],p); return araParca[on]; }); }
+function sanatciSarki(sid){ return dosyalar[sid]||null; }
+function genislik(sid){ var a=D.sanatcilar[sid]; return a && a.n>1296? 3:2; }                /* mesaj kodunda şarkı sırası hanesi */
+function seciliSay(sid){ var n=0; for(var k in sec) if(sec[k][0]===sid) n++; return n; }
+
+function ust(b, geriGoster){ baslik.textContent=b; geri.hidden=!geriGoster; document.title=geriGoster? b+" · Şarkı Seçicim":"Şarkı Seçicim"; }
+function temizle(){ ekran.textContent=""; geriCagri=[]; }
+function yenile(){ geriCagri.forEach(function(f){ f(); }); if(mevcutHash()==="secilenler") secilenEkran(true); sayac(); }
+
+/* ---------- geri al çubuğu ---------- */
+var undoZaman=null, undoSnap=null;
+function undoKapat(){ geriAlKutu.hidden=true; undoSnap=null; clearTimeout(undoZaman); }
+function degistir(fn, metin){                       /* seçimi değiştirir; metin verilirse "Geri al" çubuğu açar */
+  var once=JSON.stringify(sec);
+  fn(); kaydet();
+  if(metin){ undoSnap=once; geriAlMetin.textContent=metin; geriAlKutu.hidden=false; clearTimeout(undoZaman); undoZaman=setTimeout(undoKapat,8000); }
+  yenile();
+}
+geriAlBtn.addEventListener("click",function(){
+  if(undoSnap===null) return;
+  try{ sec=JSON.parse(undoSnap); }catch(e){}
+  kaydet(); undoKapat(); yenile();
+});
+
+/* ---------- ana ekran ---------- */
+function sanatciKart(sid){
+  var a=D.sanatcilar[sid]; if(!a) return null;
+  var n=seciliSay(sid);
+  return h("a",{class:"kart",href:"#sanatci-"+sid,on:{click:function(e){e.preventDefault();git("sanatci-"+sid);}}},[
+    h("span",null,[h("b",{text:a.ad}),h("small",{text:a.n? a.n+" şarkı":"Şarkı listesi bulunamadı"})]),
+    n? h("span",{class:"rozet","aria-label":n+" şarkı seçili",text:String(n)}) : h("span",{class:"ok","aria-hidden":"true",text:"›"})
+  ]);
+}
+function anaEkran(){
+  ust("Sevdiğiniz şarkıları seçin", false); temizle();
+  ekran.appendChild(h("p",{class:"aciklama",text:"Bir sanatçıya dokunun. Sevdiğiniz şarkıları seçip WhatsApp'la yeğeninize yollayın."}));
+  KISAYOL.forEach(function(sid){ var k=sanatciKart(sid); if(k) ekran.appendChild(k); });
+  var diger=h("div",{id:"diger"}); diger.hidden=!digerAcik;
+  DIGER.forEach(function(sid){ var k=sanatciKart(sid); if(k) diger.appendChild(k); });
+  var dBtn=h("button",{class:"btn",type:"button","aria-expanded":digerAcik?"true":"false",text:digerAcik?"Diğer sevilen sanatçıları gizle ▴":"Diğer sevilen sanatçılar ▾"});
+  dBtn.addEventListener("click",function(){ digerAcik=!digerAcik; diger.hidden=!digerAcik; dBtn.setAttribute("aria-expanded",digerAcik?"true":"false");
+    dBtn.textContent=digerAcik?"Diğer sevilen sanatçıları gizle ▴":"Diğer sevilen sanatçılar ▾"; });
+  ekran.appendChild(dBtn); ekran.appendChild(diger);
+  ekran.appendChild(h("button",{class:"btn",type:"button",text:"Müzik türlerine göz at ›",on:{click:function(){ git("turler"); }}}));
+}
+function turlerEkran(){
+  ust("Müzik türleri", true); temizle();
+  var grup="";
+  D.tarzlar.forEach(function(t){
+    if(t.grup!==grup){ grup=t.grup; ekran.appendChild(h("h2",{class:"grup-baslik",text:grup})); }
+    var n=0; t.s.forEach(function(sid){ n+=seciliSay(sid); });
+    ekran.appendChild(h("a",{class:"kart",href:"#tarz-"+t.id,on:{click:function(e){e.preventDefault();git("tarz-"+t.id);}}},[
+      h("span",null,[h("b",{text:t.ad}),h("small",{text:t.aciklama})]),
+      n? h("span",{class:"rozet","aria-label":n+" şarkı seçili",text:String(n)}) : h("span",{class:"ok","aria-hidden":"true",text:"›"})
+    ]));
+  });
+}
+function tarzEkran(tid){
+  var t=D.tarzlar.filter(function(x){return x.id===tid;})[0];
+  if(!t) return anaEkran();
+  ust(t.ad, true); temizle();
+  ekran.appendChild(h("p",{class:"aciklama",text:"Bir sanatçıya dokunun ("+t.s.length+" sanatçı)."}));
+  var f=document.createDocumentFragment();
+  t.s.forEach(function(sid){ var k=sanatciKart(sid); if(k) f.appendChild(k); });
+  ekran.appendChild(f);
+}
+
+/* ---------- sanatçı ve şarkılar ---------- */
+function sarkiSatir(sid, sAd, s, pos, altYazi){
+  var secili=!!sec[s.i];
+  var kutu=h("span",{class:"kutu","aria-hidden":"true",text:secili?"✓":""});
+  var inp=h("input",{type:"checkbox"}); inp.checked=secili;
+  var lab=h("label",{class:"satir"+(secili?" secili":"")},[inp,kutu,h("span",null,[h("span",{class:"ad",text:s.a}),
+     altYazi? h("span",{class:"alt",text:altYazi}) : null])]);
+  inp.addEventListener("change",function(){
+    if(inp.checked) sec[s.i]=[sid,sAd,s.a,pos]; else delete sec[s.i];
+    lab._yenile(); kaydet(); geriCagri.forEach(function(f){ if(f._durum) f(); });
+  });
+  lab._yenile=function(){ var v=!!sec[s.i]; inp.checked=v; lab.classList.toggle("secili",v); kutu.textContent=v?"✓":""; };
+  geriCagri.push(function(){ lab._yenile(); });
+  return lab;
+}
+function altBilgi(s){ return [s.al, s.y].filter(Boolean).join(" · "); }
+
+function sanatciEkran(sid){
+  var a=D.sanatcilar[sid]; if(!a) return anaEkran();
+  ust(a.ad, true); temizle();
+  var hazir=sanatciSarki(sid);
+  if(hazir) return sarkiListe(sid,a,hazir);
+  ekran.appendChild(h("div",{class:"yukleniyor",text:"Şarkılar yükleniyor…"}));
+  sanatciDosya(sid).then(function(){ if(location.hash==="#sanatci-"+sid){ temizle(); sarkiListe(sid,a,sanatciSarki(sid)); sonKonum(); } })
+    .catch(function(){ temizle(); ekran.appendChild(h("p",{class:"bos",text:"Şarkılar yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin."})); });
+}
+function sarkiListe(sid,a,s){
+  var liste=(s&&s.sarkilar)||[];
+  if(!liste.length){ ekran.appendChild(h("p",{class:"bos",text:"Bu sanatçının şarkı listesi bulunamadı."})); return; }
+  var sirali=sid.charAt(0)==="d";
+  ekran.appendChild(h("p",{class:"aciklama",text: liste.length<=ILK? liste.length+" şarkı. Sevdiklerinize dokunun."
+     : (sirali? "En sevilen "+ILK+" şarkı." : "Şarkıların ilk "+ILK+"'si.")+" Sevdiklerinize dokunun."}));
+  var kap=h("div"); ekran.appendChild(kap);
+  var goster=Math.min(liste.length, Math.max(ILK, gosterilen[sid]||0));
+  function ekle(bas,son){ var f=document.createDocumentFragment();
+    for(var i=bas;i<son;i++) f.appendChild(sarkiSatir(sid,a.ad,liste[i],i,altBilgi(liste[i]))); kap.appendChild(f); }
+  ekle(0,goster);
+  var dahaBtn=h("button",{class:"btn",type:"button"});
+  function dahaYaz(){ var k=liste.length-goster; dahaBtn.hidden=k<=0; dahaBtn.textContent=Math.min(ARTIM,k)+" şarkı daha göster · "+k+" kaldı"; }
+  dahaBtn.addEventListener("click",function(){ var son=Math.min(liste.length,goster+ARTIM); ekle(goster,son); goster=son; gosterilen[sid]=goster; dahaYaz(); });
+  dahaYaz(); ekran.appendChild(dahaBtn);
+  var durum=h("p",{class:"durum"}); durum.hidden=false;
+  function durumYaz(){ var n=seciliSay(sid); durum.textContent= n? "Bu sanatçıdan "+n+" şarkı seçtiniz." : "Bu sanatçıdan henüz şarkı seçmediniz."; kaldirBtn.disabled=!n; kaldirBtn.textContent="Bu sanatçıdan seçtiklerimi kaldır"+(n?" ("+n+")":""); }
+  var kaldirBtn=h("button",{class:"btn uyari",type:"button",on:{click:function(){
+    var n=seciliSay(sid); if(!n) return;
+    degistir(function(){ liste.forEach(function(x){ delete sec[x.i]; }); }, n+" şarkı kaldırıldı"); }}});
+  durumYaz(); durumYaz._durum=true; geriCagri.push(durumYaz);
+  ekran.appendChild(h("h2",{class:"grup-baslik",text:"Bu sanatçının tüm şarkıları ("+liste.length+")"}));
+  ekran.appendChild(durum);
+  ekran.appendChild(h("button",{class:"btn",type:"button",text:"Hepsini seç ("+liste.length+" şarkı)",on:{click:function(){
+    var yeni=liste.filter(function(x){ return !sec[x.i]; }).length; if(!yeni) return;
+    degistir(function(){ liste.forEach(function(x,i){ sec[x.i]=[sid,a.ad,x.a,i]; }); }, yeni+" şarkı eklendi"); }}}));
+  ekran.appendChild(kaldirBtn);
+}
+
+/* ---------- arama ---------- */
+function aramaEkran(){
+  var q=katla(aramaMetni);
+  if(q.length<2){ return anaEkran(); }
+  ust("Arama", true); temizle();
+  var sanatcilar=[];
+  for(var sid in D.sanatcilar){ if(D.kat[sid].indexOf(q)>=0) sanatcilar.push(sid); }
+  sanatcilar.sort(function(x,y){ return (D.sira[x]||1e9)-(D.sira[y]||1e9); });
+  ekran.appendChild(h("h2",{class:"grup-baslik",text:"Sanatçılar ("+sanatcilar.length+")"}));
+  if(!sanatcilar.length) ekran.appendChild(h("p",{class:"bos",text:"Bu adla sanatçı bulunamadı."}));
+  sanatcilar.slice(0,aLim).forEach(function(sid){ ekran.appendChild(sanatciKart(sid)); });
+  if(sanatcilar.length>aLim) ekran.appendChild(h("button",{class:"btn",type:"button",text:"Daha çok sanatçı göster · "+(sanatcilar.length-aLim)+" kaldı",
+    on:{click:function(){ aLim+=20; aramaYeniden(); }}}));
+  var on=araOnek(q), sonuc=[];
+  if(on && araParca[on]){
+    var tk=q.split(" ").filter(Boolean);
+    araParca[on].forEach(function(r){
+      var k=r._k||(r._k=" "+katla(r[3]));
+      if(k.indexOf(" "+q)>=0 || tk.every(function(t){ return k.indexOf(" "+t)>=0; }) || (r._b||(r._b=k.replace(/ /g,""))).indexOf(q.replace(/ /g,""))===0){
+        var sid=D.sira2[r[0]]; if(sid) sonuc.push([sid,D.sanatcilar[sid].ad,{i:r[2],a:r[3]},r[1]]); }
+    });
+  }
+  ekran.appendChild(h("h2",{class:"grup-baslik",text:"Şarkılar ("+sonuc.length+")"}));
+  if(on && !araParca[on]) ekran.appendChild(h("p",{class:"durum",id:"araDurum",text:"Şarkılar aranıyor…"}));
+  else if(!sonuc.length) ekran.appendChild(h("p",{class:"bos",text:on? (on.slice(-1)==="_"? "Daha çok şarkı için bir harf daha yazın." : "Bu adla şarkı bulunamadı.") : "Şarkı aramak için en az iki harfli bir kelime yazın."}));
+  else if(on.slice(-1)==="_") ekran.appendChild(h("p",{class:"durum",text:"Daha çok şarkı için bir harf daha yazın."}));
+  sonuc.slice(0,sLim).forEach(function(r){ ekran.appendChild(sarkiSatir(r[0],r[1],r[2],r[3],r[1])); });
+  if(sonuc.length>sLim) ekran.appendChild(h("button",{class:"btn",type:"button",text:"Daha çok şarkı göster · "+(sonuc.length-sLim)+" kaldı",
+    on:{click:function(){ sLim+=30; aramaYeniden(); }}}));
+  if(on && !araParca[on]) araDosya(on).then(function(){ if(mevcutHash()==="ara" && araOnek(katla(aramaMetni))===on) aramaYeniden(); })
+    .catch(function(){ var d=document.getElementById("araDurum"); if(d) d.textContent="Şarkılar yüklenemedi. İnternet bağlantınızı kontrol edin."; });
+}
+function araOnek(q){ var t=q.split(" ").filter(function(x){ return x.length>=2; })[0]; if(!t) return "";            /* büyük önekler 3 harfe bölünür (index.json a3) */
+  var o=t.slice(0,2); return (D.a3set && D.a3set[o])? (t.length>=3? t.slice(0,3) : o+"_") : o; }
+function aramaYeniden(){ var y=window.scrollY; aramaEkran(); window.scrollTo(0,y); }
+var aramaZaman=null;
+ara.addEventListener("input",function(){
+  clearTimeout(aramaZaman);
+  aramaZaman=setTimeout(function(){
+    aramaMetni=ara.value; aLim=12; sLim=20;
+    if(katla(aramaMetni).length>=2){ if(mevcutHash()!=="ara"){ yigin++; location.hash="ara"; } else aramaEkran(); }
+    else if(mevcutHash()==="ara") history.back();
+  },250);
+});
+
+/* ---------- mesaj üretimi: tek mesaj, kısa kod ---------- */
+function gruplu(){
+  var g={}, sira=[];
+  Object.keys(sec).forEach(function(id){ var v=sec[id]; if(!g[v[0]]){ g[v[0]]={ad:v[1],s:[]}; sira.push(v[0]); } g[v[0]].s.push([id,v[2]]); });
+  sira.sort(function(a,b){ return g[a].ad.localeCompare(g[b].ad,"tr"); });
+  return {g:g,sira:sira};
+}
+function sarkiListesi(){
+  var l=[];
+  Object.keys(sec).forEach(function(id){ var v=sec[id], a=D.aidx[v[0]];
+    if(a!==undefined) l.push({a:a,p:v[3],ad:v[1],t:v[2],w:genislik(v[0])}); });
+  l.sort(function(x,y){ return x.a-y.a || x.p-y.p; });
+  return l;
+}
+function kodMetni(parca){
+  var s="", son=-1;
+  parca.forEach(function(x){ if(x.a!==son){ s+="~"+b36(x.a)+"_"; son=x.a; } var c=b36(x.p); while(c.length<x.w) c="0"+c; s+=c; });
+  return s;
+}
+function bulunamayanlar(){                    /* sonraki bir veri güncellemesinde sanatçısı kalkan seçim sessizce kaybolmasın: düz yazıyla gönderilir */
+  return Object.keys(sec).filter(function(id){ return D.aidx[sec[id][0]]===undefined; }).map(function(id){ return sec[id]; });
+}
+function mesajlar(){                          /* her zaman TEK mesaj; kod satırı en altta */
+  var l=sarkiListesi(), ek=bulunamayanlar(), N=l.length;
+  if(!N && !ek.length) return [];
+  var onizle=N<=ONIZLEME? l : l.slice(0,ONIZLEME-3), satir=onizle.map(function(x){ return x.ad+" — "+x.t; });
+  if(onizle.length<N) satir.push("… ve "+(N-onizle.length)+" şarkı daha");
+  if(ek.length){ satir.push("Ayrıca "+ek.length+" şarkı:"); ek.forEach(function(v){ satir.push("+ "+v[1]+" — "+v[2]); }); }
+  var m="Seçtiğim "+(N+ek.length)+" şarkı\n"+satir.join("\n");
+  if(N){ var ozet=fnv(l.map(function(x){ return x.ad+"\t"+x.t+"\n"; }).join(""));
+    m+="\n#KOD4 1/1 "+N+" "+N+" "+ozet+" "+kodMetni(l); }
+  return [m];
+}
+
+/* ---------- gönder ekranı ---------- */
+function waAcBaglanti(m){ return "whatsapp://send?text="+encodeURIComponent(m); }
+var paylasHata="";
+function secilenEkran(koru){
+  var y=window.scrollY;
+  ust("Listeniz", true); temizle();
+  var n=adet();
+  if(!n){ ekran.appendChild(h("p",{class:"bos",text:"Henüz şarkı seçmediniz. Geri dönüp bir sanatçı seçin."})); sayac(); return; }
+  var x=gruplu(), msj=mesajlar();
+  ekran.appendChild(h("p",{class:"sayi",text:n+" şarkı seçtiniz"}));
+  var on=h("div",{class:"onizleme"}); var gosterilenOn=0;
+  x.sira.forEach(function(sid){ x.g[sid].s.forEach(function(s){ if(gosterilenOn<2){ gosterilenOn++; on.appendChild(h("div",{text:x.g[sid].ad+" — "+s[1]})); } }); });
+  if(n>2) on.appendChild(h("div",{class:"durum",text:"… ve "+(n-2)+" şarkı daha"}));
+  ekran.appendChild(on);
+  var tam=h("div"); tam.hidden=!(koru&&tamAcik);
+  if(!koru) tamAcik=false;
+  var tBtn=h("button",{class:"btn",type:"button","aria-expanded":tamAcik?"true":"false",text:tamAcik?"Tüm listeyi gizle ▴":"Tüm listeyi gör ("+n+") ▾"});
+  tBtn.addEventListener("click",function(){ tamAcik=!tamAcik; tam.hidden=!tamAcik; tBtn.setAttribute("aria-expanded",tamAcik?"true":"false");
+    tBtn.textContent=tamAcik?"Tüm listeyi gizle ▴":"Tüm listeyi gör ("+n+") ▾"; });
+  tam.hidden=!tamAcik;
+  ekran.appendChild(tBtn); ekran.appendChild(tam);
+  x.sira.forEach(function(sid){
+    tam.appendChild(h("h3",{class:"grup-baslik",style:"font-size:21px;color:var(--metin)",text:x.g[sid].ad}));
+    x.g[sid].s.forEach(function(s){
+      tam.appendChild(h("div",{class:"satir secili"},[h("span",{class:"ad",text:s[1]}),
+        h("button",{class:"cikar",type:"button","aria-label":s[1]+" listeden çıkar",text:"Çıkar ✕",on:{click:function(){
+          degistir(function(){ delete sec[s[0]]; }, "“"+s[1]+"” çıkarıldı"); }}})]));
+    });
+  });
+  /* gönderme: tek mesaj. Önce telefonun paylaşım menüsü (Android), yoksa WhatsApp uygulaması; kopyalama her zaman açık */
+  var m=msj[0], anahtar=fnv(m||""), d=gonderDurum[anahtar], bitti=d==="gonderildi";
+  var paylasVar=typeof navigator.share==="function";
+  function acildi(){ paylasHata=""; gonderDurum[anahtar]="acildi"; gonderKaydet(); if(mevcutHash()==="secilenler") secilenEkran(true); }
+  function gonderDugmesi(yazi){
+    if(paylasVar) return h("button",{class:"btn wa",type:"button",id:"gonderBtn",text:yazi,on:{click:function(){
+      var soz; try{ soz=navigator.share({text:m}); }catch(e){ soz=Promise.reject(e); }
+      Promise.resolve(soz).then(acildi,function(e){ paylasHata=e&&e.name==="AbortError"? "iptal":"hata"; if(mevcutHash()==="secilenler") secilenEkran(true); });
+    }}});
+    return h("a",{class:"btn wa",id:"gonderBtn",href:waAcBaglanti(m),text:yazi,on:{click:function(){ setTimeout(acildi,400); }}});
+  }
+  if(m){
+    var kutu=h("div",{class:"adim"+(bitti?" bitti":" aktif")});
+    if(bitti){
+      kutu.appendChild(h("h3",{text:"✓ Liste gönderildi"}));
+      kutu.appendChild(h("button",{class:"btn",type:"button",text:"Bir daha gönder",on:{click:function(){ delete gonderDurum[anahtar]; gonderKaydet(); secilenEkran(true); }}}));
+    }else if(d==="acildi"){
+      kutu.appendChild(h("p",{class:"tarif",text:"WhatsApp'ta yeşil ok tuşuna bastınız mı?"}));
+      kutu.appendChild(h("button",{class:"btn dolu",type:"button",text:"Evet, gönderdim ✓",on:{click:function(){ gonderDurum[anahtar]="gonderildi"; gonderKaydet(); secilenEkran(true); window.scrollTo(0,y); }}}));
+      kutu.appendChild(gonderDugmesi("Hayır, yeniden gönder"));
+      kutu.appendChild(h("p",{class:"durum",text:"Listeniz burada duruyor; hiçbir şey kaybolmadı."}));
+    }else{
+      kutu.appendChild(gonderDugmesi("WhatsApp'a gönder"));
+      kutu.appendChild(h("p",{class:"tarif",text:paylasVar? "Açılan yerde WhatsApp'ı, sonra yeğeninizi seçip yeşil ok tuşuna basın." : "WhatsApp açılınca yeğeninizi seçip yeşil ok tuşuna basın."}));
+    }
+    if(paylasHata && !bitti) kutu.appendChild(h("p",{class:"bilgi uyari",role:"alert",text:(paylasHata==="iptal"? "Gönderilmedi (pencere kapatıldı).":"Gönderilemedi.")+" Yeniden deneyin ya da aşağıdaki “Listeyi kopyala”ya basın."}));
+    if(paylasVar && !bitti) kutu.appendChild(h("a",{class:"btn",id:"waDogrudan",href:waAcBaglanti(m),text:"Olmadı mı? WhatsApp'ı doğrudan aç",on:{click:function(){ setTimeout(acildi,400); }}}));
+    ekran.appendChild(kutu);
+  }
+  if(bitti) ekran.appendChild(h("div",{class:"bilgi"},[h("b",{text:"Teşekkürler, listeniz gönderildi ✓"}),h("br"),
+     document.createTextNode("Yeğeniniz şarkıların geldiğini size yazacak. Daha fazla şarkı seçebilirsiniz.")]));
+  var kopyaYer=h("div");
+  ekran.appendChild(h("p",{class:"durum",text:"Gönderme olmazsa: kopyalayıp WhatsApp'a yapıştırın."}));
+  ekran.appendChild(h("button",{class:"btn kopya",type:"button",id:"kopyaBtn",text:"Listeyi kopyala",on:{click:function(){
+    var metin=m||"", dugme=this;
+    function goster(){ kopyaYer.textContent=""; var ta=h("textarea",{readonly:"readonly","aria-label":"Liste metni"}); ta.value=metin;
+      kopyaYer.appendChild(h("p",{class:"aciklama",text:"Kopyalanamadı. Aşağıdaki yazıya uzun basıp hepsini seçin ve kopyalayın."})); kopyaYer.appendChild(ta); ta.focus(); ta.select(); }
+    function ok(){ dugme.textContent="Kopyalandı ✓"; kopyaYer.textContent=""; kopyaYer.appendChild(h("p",{class:"aciklama",text:"Şimdi WhatsApp'ta yeğeninizin sohbetine yapıştırıp gönderin."})); }
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(metin).then(ok, goster); else goster();
+  }}}));
+  ekran.appendChild(kopyaYer);
+  ekran.appendChild(h("p",{class:kayitTamam?"durum":"bilgi uyari",text:kayitTamam? "Seçimleriniz bu telefonda kayıtlı ✓" : "Seçimler bu telefonda kaydedilemedi. Sayfayı kapatmadan listenizi gönderin."}));
+  sayac();
+  if(koru) window.scrollTo(0,y);
+}
+var tamAcik=false;
+
+/* ---------- yönlendirme ---------- */
+function sonKonum(){ var k=kon[aktifHash]; window.scrollTo(0,k||0); }
+function ciz(){
+  if(!D) return;
+  var hs=mevcutHash();
+  if(!/^[a-z0-9-]*$/.test(hs)) hs="";
+  aktifHash=hs; undoKapat();
+  if(hs.indexOf("tarz-")===0) tarzEkran(hs.slice(5));
+  else if(hs.indexOf("sanatci-")===0) sanatciEkran(hs.slice(8));
+  else if(hs==="secilenler") secilenEkran(false);
+  else if(hs==="turler") turlerEkran();
+  else if(hs==="ara") aramaEkran();
+  else anaEkran();
+  sayac(); sonKonum();
+}
+window.addEventListener("scroll",function(){ if(aktifHash!==null) kon[aktifHash]=window.scrollY; },{passive:true});
+geri.addEventListener("click",function(){
+  if(yigin>0){ yigin--; history.back(); return; }
+  var hs=mevcutHash();
+  if(hs.indexOf("sanatci-")===0){ var a=D.sanatcilar[hs.slice(8)]; location.replace("#"+(a?"tarz-"+a.t:"")); }
+  else location.replace("#");
+});
+window.addEventListener("hashchange",function(){
+  var hs=mevcutHash();
+  if(hs==="" || hs==="turler" || hs.indexOf("tarz-")===0){ ara.value=""; aramaMetni=""; }
+  else if(hs==="ara" && ara.value!==aramaMetni) ara.value=aramaMetni;
+  ciz();
+});
+secBtn.addEventListener("click",function(){
+  if(mevcutHash()==="secilenler"){ if(yigin>0){ yigin--; history.back(); } else location.replace("#"); }
+  else git("secilenler");
+});
+sayac();
+ekran.appendChild(h("div",{class:"yukleniyor",text:"Yükleniyor…"}));
+fetch("veri/index.json").then(function(r){ return r.json(); }).then(function(j){
+  D=j; D.sira={}; D.aidx={}; D.sira2=[]; D.kat={}; D.a3set={}; (j.a3||[]).forEach(function(o){ D.a3set[o]=1; });
+  Object.keys(j.sanatcilar).forEach(function(sid,i){ D.aidx[sid]=i; D.sira2[i]=sid; D.kat[sid]=katla(j.sanatcilar[sid].ad); });
+  j.tarzlar.forEach(function(t){ t.s.forEach(function(sid,k){ if(!(sid in D.sira) || k<D.sira[sid]) D.sira[sid]=k; }); });
+  if(mevcutHash()==="ara") location.replace("#");
+  ciz();
+}).catch(function(){ temizle(); ekran.appendChild(h("p",{class:"bos",text:"Liste yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin."})); });
+})();
+</script>
+</body>
+</html>
