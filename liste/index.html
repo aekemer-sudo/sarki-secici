@@ -127,7 +127,9 @@ textarea{width:100%;min-height:200px;font-size:20px;border-radius:6px;border:2px
 <script>
 (function(){
 "use strict";
-var ANAHTAR="sarkiSecimV4", GONDER="sarkiGonderV4", TEMA="sarkiTemaV5";                /* seçim anahtarları v4 ile AYNI (halanın seçimi kalır) */
+var ANAHTAR="sarkiSecimV4", GONDER="sarkiGonderV4", TEMA="sarkiTemaV5";
+/* v6: doğrudan gönderim (ntfy.sh, hesapsız). Konu adı herkese açık sayılır: giden yalnız şarkı kodu, kimlik/anahtar yok */
+var NTFY="https://ntfy.sh/fscyz0l028h5ed8482a1luyu", GOVDE_SINIR=3500, ZAMAN_ASIMI=20000;                /* seçim anahtarları v4 ile AYNI (halanın seçimi kalır) */
 var KISAYOL=["d97013","d174210","d13758","d9289","d113766","d254617"];                       /* Zeki Müren, Müzeyyen Senar, Barış Manço, Sezen Aksu, Orhan Gencebay, İbrahim Tatlıses */
 var DIGER=["d16628","d103304","d343785","d99563","d97092","d111965","d6435","d328791","d101725","d3254","d459471","d98753",
            "d4308","d328865","d91607","d16617","d325135","d343782","d101809","d343662","d97973","d96908","d9290","d98036"];
@@ -502,6 +504,54 @@ function mesajlar(){                          /* her zaman TEK mesaj; kod satır
   return [m];
 }
 
+
+/* ---------- v6: doğrudan gönderim. Her gövde UTF-8 ≤ 3.500 bayt (ntfy 4.096 üstünü 3 saatlik eke çeviriyor) ---------- */
+function bayt(s){ try{ return new TextEncoder().encode(s).length; }catch(e){ return unescape(encodeURIComponent(s)).length; } }
+function dogrudanGovdeler(){
+  var l=sarkiListesi(), ek=bulunamayanlar(), N=l.length, parca=[], cur=[], uz=0, BUTCE=GOVDE_SINIR-80;
+  l.forEach(function(x){
+    var c=x.w+(cur.length && cur[cur.length-1].a===x.a? 0 : b36(x.a).length+2);
+    if(cur.length && uz+c>BUTCE){ parca.push(cur); cur=[]; uz=0; c=x.w+b36(x.a).length+2; }
+    cur.push(x); uz+=c;
+  });
+  if(cur.length) parca.push(cur);
+  var M=parca.length, g=parca.map(function(p,i){
+    var oz=fnv(p.map(function(x){ return x.ad+"\t"+x.t+"\n"; }).join(""));
+    return "#KOD4 "+(i+1)+"/"+M+" "+N+" "+p.length+" "+oz+" "+kodMetni(p);
+  });
+  if(ek.length){ var m="Ayrıca "+ek.length+" şarkı:";
+    ek.forEach(function(v){ var s="+ "+v[1]+" — "+v[2]; if(m && bayt(m)+1+bayt(s)>GOVDE_SINIR){ g.push(m); m=""; } m+=(m?"\n":"")+s; });
+    if(m) g.push(m); }
+  return g;
+}
+function yeniGid(){ var a=new Uint32Array(2); try{ crypto.getRandomValues(a); }catch(e){ a[0]=Math.floor(Math.random()*4294967295); a[1]=Date.now()%4294967295; }
+  return b36(a[0])+b36(a[1]); }
+function birGonder(gid, i, P, govde){            /* başarı = HTTP 200 + yanıtta ileti kimliği; başka her şey hata */
+  var ctrl=typeof AbortController==="function"? new AbortController() : null, t=null;
+  if(ctrl) t=setTimeout(function(){ ctrl.abort(); }, ZAMAN_ASIMI);
+  function temiz(){ if(t) clearTimeout(t); }
+  return fetch(NTFY+"?title="+encodeURIComponent("s6 "+gid+" "+(i+1)+"/"+P), {method:"POST", body:govde, cache:"no-store", signal:ctrl? ctrl.signal : undefined})
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+    .then(function(j){ temiz(); if(!j || typeof j.id!=="string" || !j.id) throw new Error("kimlik yok"); return j.id; },
+          function(e){ temiz(); throw e; });
+}
+var gonderim=null;                              /* {anahtar, durum:"gidiyor"|"hata", i, P} — yalnız bu oturumda */
+function dogrudanGonder(anahtar, govdeler){
+  var P=govdeler.length, st=gonderDurum["d:"+anahtar];
+  if(!st || typeof st!=="object" || st.P!==P) st={gid:yeniGid(), P:P, ok:{}, tamam:false};
+  gonderDurum["d:"+anahtar]=st; gonderKaydet();
+  gonderim={anahtar:anahtar, durum:"gidiyor", i:0, P:P};
+  function yaz(){ if(mevcutHash()==="secilenler") secilenEkran(true); }
+  function sonraki(){
+    var i=-1; for(var k=0;k<P;k++) if(!st.ok[k]){ i=k; break; }
+    if(i<0){ st.tamam=true; gonderKaydet(); gonderim=null; yaz(); return; }
+    gonderim.i=i; yaz();
+    birGonder(st.gid, i, P, govdeler[i]).then(function(id){ st.ok[i]=id; gonderKaydet(); sonraki(); },
+      function(){ gonderim={anahtar:anahtar, durum:"hata", i:i, P:P}; gonderKaydet(); yaz(); });
+  }
+  sonraki();
+}
+
 /* ---------- gönder ekranı ---------- */
 function waAcBaglanti(m){ return "whatsapp://send?text="+encodeURIComponent(m); }
 var paylasHata="";
@@ -516,39 +566,60 @@ function secilenEkran(koru){
   x.sira.forEach(function(sid){ x.g[sid].s.forEach(function(s){ if(gosterilenOn<2){ gosterilenOn++; on.appendChild(h("div",{text:x.g[sid].ad+" — "+s[1]})); } }); });
   if(n>2) on.appendChild(h("div",{class:"durum",text:"… ve "+(n-2)+" şarkı daha"}));
   ekran.appendChild(on);
-  /* gönderme: tek mesaj. Önce telefonun paylaşım menüsü (Android), yoksa WhatsApp uygulaması; kopyalama her zaman açık */
+  /* v6: birincil yol doğrudan gönderim; WhatsApp ve kopyalama YEDEK olarak aynen duruyor */
   var m=msj[0], anahtar=fnv(m||""), d=gonderDurum[anahtar], bitti=d==="gonderildi";
+  var govdeler=dogrudanGovdeler(), dk=gonderDurum["d:"+anahtar], dTamam=!!(dk && typeof dk==="object" && dk.tamam);
+  var g=gonderim && gonderim.anahtar===anahtar? gonderim : null, gidiyor=!!(g && g.durum==="gidiyor"), dHata=!!(g && g.durum==="hata");
+  if(m && govdeler.length){
+    var dkutu=h("div",{class:"adim"+(dTamam?" bitti":" aktif"),id:"dogrudanKutu"});
+    if(dTamam){
+      dkutu.appendChild(h("h3",{role:"status",text:"✓ Listeniz gönderildi"}));
+      dkutu.appendChild(h("p",{class:"tarif",text:"Yeğeniniz şarkılarınızı görecek. Başka bir şey yapmanıza gerek yok."}));
+      dkutu.appendChild(h("button",{class:"btn",type:"button",id:"birDahaBtn",text:"Bir daha gönder",on:{click:function(){ delete gonderDurum["d:"+anahtar]; gonderim=null; gonderKaydet(); secilenEkran(true); }}}));
+    }else{
+      var dBtn=h("button",{class:"btn wa",type:"button",id:"gonderBtn",
+        text:gidiyor? "Gönderiliyor…"+(g.P>1? " ("+(g.i+1)+"/"+g.P+")" : "") : (dHata? "Yeniden gönder" : "Listemi gönder"),
+        on:{click:function(){ if(gonderim && gonderim.durum==="gidiyor") return; dogrudanGonder(anahtar, govdeler); }}});
+      if(gidiyor){ dBtn.disabled=true; dBtn.setAttribute("aria-busy","true"); }
+      dkutu.appendChild(dBtn);
+      if(dHata) dkutu.appendChild(h("p",{class:"bilgi uyari",role:"alert",id:"dogrudanHata",text:"Gönderilemedi. İnternetiniz açık mı? Yeniden deneyin ya da aşağıdan WhatsApp ile gönderin."}));
+      else dkutu.appendChild(h("p",{class:"tarif",text:"Bir kez basmanız yeter. Liste doğrudan yeğeninize gider."}));
+    }
+    ekran.appendChild(dkutu);
+  }
+  if(dTamam) ekran.appendChild(h("div",{class:"bilgi"},[h("b",{text:"Teşekkürler ✓"}),h("br"),
+     document.createTextNode("Daha fazla şarkı seçebilirsiniz; sonra listeyi bir daha gönderin.")]));
+  /* --- yedek: v5'in WhatsApp + kopyala yolu (mesaj metni v5 ile aynı) --- */
   var paylasVar=typeof navigator.share==="function";
   function acildi(){ paylasHata=""; gonderDurum[anahtar]="acildi"; gonderKaydet(); if(mevcutHash()==="secilenler") secilenEkran(true); }
   function gonderDugmesi(yazi){
-    if(paylasVar) return h("button",{class:"btn wa",type:"button",id:"gonderBtn",text:yazi,on:{click:function(){
+    var sinif=dHata? "btn wa" : "btn";
+    if(paylasVar) return h("button",{class:sinif,type:"button",id:"waBtn",text:yazi,on:{click:function(){
       var soz; try{ soz=navigator.share({text:m}); }catch(e){ soz=Promise.reject(e); }
       Promise.resolve(soz).then(acildi,function(e){ paylasHata=e&&e.name==="AbortError"? "iptal":"hata"; if(mevcutHash()==="secilenler") secilenEkran(true); });
     }}});
-    return h("a",{class:"btn wa",id:"gonderBtn",href:waAcBaglanti(m),text:yazi,on:{click:function(){ setTimeout(acildi,400); }}});
+    return h("a",{class:sinif,id:"waBtn",href:waAcBaglanti(m),text:yazi,on:{click:function(){ setTimeout(acildi,400); }}});
   }
   if(m){
-    var kutu=h("div",{class:"adim"+(bitti?" bitti":" aktif")});
+    ekran.appendChild(h("p",{class:"durum",id:"yedekBaslik",text:dTamam? "İsterseniz WhatsApp ile de gönderebilirsiniz:" : "Olmazsa WhatsApp ile gönderin:"}));
+    var kutu=h("div",{class:"adim"+(bitti?" bitti":"")+(dHata&&!bitti?" aktif":""),id:"yedekKutu"});
     if(bitti){
-      kutu.appendChild(h("h3",{text:"✓ Liste gönderildi"}));
-      kutu.appendChild(h("button",{class:"btn",type:"button",text:"Bir daha gönder",on:{click:function(){ delete gonderDurum[anahtar]; gonderKaydet(); secilenEkran(true); }}}));
+      kutu.appendChild(h("p",{class:"tarif",text:"✓ WhatsApp ile gönderdiniz."}));
+      kutu.appendChild(h("button",{class:"btn",type:"button",text:"WhatsApp ile bir daha gönder",on:{click:function(){ delete gonderDurum[anahtar]; gonderKaydet(); secilenEkran(true); }}}));
     }else if(d==="acildi"){
       kutu.appendChild(h("p",{class:"tarif",text:"WhatsApp'ta yeşil ok tuşuna bastınız mı?"}));
       kutu.appendChild(h("button",{class:"btn dolu",type:"button",text:"Evet, gönderdim ✓",on:{click:function(){ gonderDurum[anahtar]="gonderildi"; gonderKaydet(); secilenEkran(true); window.scrollTo(0,y); }}}));
-      kutu.appendChild(gonderDugmesi("Hayır, yeniden gönder"));
+      kutu.appendChild(gonderDugmesi("Hayır, WhatsApp'a yeniden gönder"));
       kutu.appendChild(h("p",{class:"durum",text:"Listeniz burada duruyor; hiçbir şey kaybolmadı."}));
     }else{
       kutu.appendChild(gonderDugmesi("WhatsApp'a gönder"));
       kutu.appendChild(h("p",{class:"tarif",text:paylasVar? "Açılan yerde WhatsApp'ı, sonra yeğeninizi seçip yeşil ok tuşuna basın." : "WhatsApp açılınca yeğeninizi seçip yeşil ok tuşuna basın."}));
     }
-    if(paylasHata && !bitti) kutu.appendChild(h("p",{class:"bilgi uyari",role:"alert",text:(paylasHata==="iptal"? "Gönderilmedi (pencere kapatıldı).":"Gönderilemedi.")+" Yeniden deneyin ya da aşağıdaki “Listeyi kopyala”ya basın."}));
+    if(paylasHata && !bitti) kutu.appendChild(h("p",{class:"bilgi uyari",role:"alert",text:(paylasHata==="iptal"? "WhatsApp'a gönderilmedi (pencere kapatıldı).":"WhatsApp'a gönderilemedi.")+" Yeniden deneyin ya da aşağıdaki “Listeyi kopyala”ya basın."}));
     if(paylasVar && !bitti) kutu.appendChild(h("a",{class:"btn",id:"waDogrudan",href:waAcBaglanti(m),text:"Olmadı mı? WhatsApp'ı doğrudan aç",on:{click:function(){ setTimeout(acildi,400); }}}));
     ekran.appendChild(kutu);
   }
-  if(bitti) ekran.appendChild(h("div",{class:"bilgi"},[h("b",{text:"Teşekkürler, listeniz gönderildi ✓"}),h("br"),
-     document.createTextNode("Yeğeniniz şarkıların geldiğini size yazacak. Daha fazla şarkı seçebilirsiniz.")]));
   var kopyaYer=h("div");
-  ekran.appendChild(h("p",{class:"durum",text:"Gönderme olmazsa: kopyalayıp WhatsApp'a yapıştırın."}));
   ekran.appendChild(h("button",{class:"btn kopya",type:"button",id:"kopyaBtn",text:"Listeyi kopyala",on:{click:function(){
     var metin=m||"", dugme=this;
     function goster(){ kopyaYer.textContent=""; var ta=h("textarea",{readonly:"readonly","aria-label":"Liste metni"}); ta.value=metin;
